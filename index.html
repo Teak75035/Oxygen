@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oxygen 4 | 开启智能课堂点名新时代</title>
+    <style>
+        :root {
+            --purple-50: #faf5ff;
+            --purple-100: #f3e8ff;
+            --purple-200: #e9d5ff;
+            --purple-300: #d8b4fe;
+            --purple-400: #c084fc;
+            --purple-500: #a855f7;
+            --purple-600: #9333ea;
+            --purple-700: #7e22ce;
+            --purple-800: #6b21a8;
+            --purple-850: #581c87;
+            --purple-900: #4a1772;
+            --purple-950: #2d0b4e;
+            --white: #ffffff;
+            --white-soft: #faf8ff;
+            --gold: #f0c060;
+            --red-warn: #ef4444;
+            --red-dark: #b91c1c;
+            --text-primary: #1e1b2e;
+            --text-secondary: #4a4458;
+            --text-muted: #7c748b;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-bg-solid: #ffffff;
+            --glass: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow-sm: 0 1px 3px rgba(107, 33, 168, 0.08);
+            --shadow-md: 0 8px 32px rgba(107, 33, 168, 0.12);
+            --shadow-lg: 0 20px 60px rgba(107, 33, 168, 0.18);
+            --shadow-glow: 0 0 60px rgba(147, 51, 234, 0.3);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 36px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+            --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-display: 'Georgia', 'Noto Serif SC', 'STSong', 'Songti SC', serif;
+            --font-body: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            font-size: 16px;
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--purple-950);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: default;
+        }
+
+        /* ============ 背景装饰系统 ============ */
+        .bg-ambient {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.25;
+            animation: orbFloat 18s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        .bg-orb--1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #c084fc 0%, transparent 70%);
+            top: -10%;
+            left: -8%;
+            animation-delay: 0s;
+            animation-duration: 20s;
+        }
+
+        .bg-orb--2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #a855f7 0%, transparent 70%);
+            bottom: -12%;
+            right: -6%;
+            animation-delay: -6s;
+            animation-duration: 22s;
+        }
+
+        .bg-orb--3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #7e22ce 0%, transparent 70%);
+            top: 45%;
+            left: 50%;
+            animation-delay: -11s;
+            animation-duration: 24s;
+            opacity: 0.18;
+        }
+
+        .bg-orb--4 {
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, #d8b4fe 0%, transparent 70%);
+            top: 25%;
+            right: 15%;
+            animation-delay: -15s;
+            animation-duration: 19s;
+            opacity: 0.2;
+        }
+
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+        }
+
+        @keyframes orbFloat {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            16% {
+                transform: translate(40px, -35px) scale(1.06);
+            }
+            33% {
+                transform: translate(-25px, 20px) scale(0.94);
+            }
+            50% {
+                transform: translate(30px, 30px) scale(1.03);
+            }
+            66% {
+                transform: translate(-35px, -20px) scale(0.96);
+            }
+            83% {
+                transform: translate(15px, -30px) scale(1.04);
+            }
+        }
+
+        /* 浮动粒子 */
+        .particles-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--purple-400);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleRise 12s ease-in infinite;
+        }
+        .particle:nth-child(1) {
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 14s;
+        }
+        .particle:nth-child(2) {
+            left: 25%;
+            animation-delay: -3s;
+            animation-duration: 11s;
+            width: 3px;
+            height: 3px;
+        }
+        .particle:nth-child(3) {
+            left: 40%;
+            animation-delay: -6s;
+            animation-duration: 16s;
+            width: 5px;
+            height: 5px;
+            background: var(--purple-300);
+        }
+        .particle:nth-child(4) {
+            left: 55%;
+            animation-delay: -9s;
+            animation-duration: 13s;
+            width: 3px;
+            height: 3px;
+        }
+        .particle:nth-child(5) {
+            left: 70%;
+            animation-delay: -2s;
+            animation-duration: 15s;
+            width: 4px;
+            height: 4px;
+            background: var(--purple-500);
+        }
+        .particle:nth-child(6) {
+            left: 82%;
+            animation-delay: -7s;
+            animation-duration: 12s;
+            width: 3px;
+            height: 3px;
+        }
+        .particle:nth-child(7) {
+            left: 15%;
+            animation-delay: -10s;
+            animation-duration: 17s;
+            width: 5px;
+            height: 5px;
+            background: var(--purple-300);
+        }
+        .particle:nth-child(8) {
+            left: 60%;
+            animation-delay: -4s;
+            animation-duration: 10s;
+            width: 2px;
+            height: 2px;
+        }
+
+        @keyframes particleRise {
+            0% {
+                opacity: 0;
+                transform: translateY(105vh) translateX(0) scale(0);
+            }
+            5% {
+                opacity: 0.7;
+            }
+            40% {
+                opacity: 0.5;
+            }
+            80% {
+                opacity: 0.1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10vh) translateX(30px) scale(1.4);
+            }
+        }
+
+        /* ============ 主滚动容器 ============ */
+        .main-scroll {
+            position: relative;
+            z-index: 1;
+        }
+
+        .section {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-inner {
+            max-width: 900px;
+            width: 100%;
+            z-index: 2;
+            position: relative;
+        }
+
+        /* ============ 导航指示器 ============ */
+        .nav-dots {
+            position: fixed;
+            right: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: all;
+        }
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            position: relative;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-dot:hover {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: #fff;
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.6);
+            transform: scale(1.25);
+        }
+        .nav-dot.active {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 22px rgba(168, 85, 247, 0.8), 0 0 40px rgba(147, 51, 234, 0.5);
+            width: 14px;
+            height: 14px;
+            transform: scale(1.15);
+        }
+        .nav-dot-label {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            background: rgba(30, 27, 46, 0.9);
+            color: #fff;
+            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            font-family: var(--font-body);
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .nav-dot:hover .nav-dot-label {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .nav-dots {
+                right: 10px;
+                gap: 10px;
+            }
+            .nav-dot {
+                width: 10px;
+                height: 10px;
+            }
+            .nav-dot.active {
+                width: 12px;
+                height: 12px;
+            }
+            .nav-dot-label {
+                display: none;
+            }
+        }
+
+        /* ============ 通用动画类 ============ */
+        .anim-reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        .anim-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .anim-reveal-up {
+            opacity: 0;
+            transform: translateY(48px);
+            transition: opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) 0.05s,
+                transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) 0.05s;
+        }
+        .anim-reveal-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .anim-fade-in {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .anim-fade-in.visible {
+            opacity: 1;
+        }
+        .anim-stagger>* {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        .anim-stagger.visible>*:nth-child(1) {
+            transition-delay: 0.05s;
+        }
+        .anim-stagger.visible>*:nth-child(2) {
+            transition-delay: 0.12s;
+        }
+        .anim-stagger.visible>*:nth-child(3) {
+            transition-delay: 0.19s;
+        }
+        .anim-stagger.visible>*:nth-child(4) {
+            transition-delay: 0.26s;
+        }
+        .anim-stagger.visible>*:nth-child(5) {
+            transition-delay: 0.33s;
+        }
+        .anim-stagger.visible>*:nth-child(6) {
+            transition-delay: 0.40s;
+        }
+        .anim-stagger.visible>*:nth-child(7) {
+            transition-delay: 0.47s;
+        }
+        .anim-stagger.visible>*:nth-child(8) {
+            transition-delay: 0.54s;
+        }
+        .anim-stagger.visible>*:nth-child(9) {
+            transition-delay: 0.61s;
+        }
+        .anim-stagger.visible>*:nth-child(10) {
+            transition-delay: 0.68s;
+        }
+        .anim-stagger.visible>* {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============ SECTION 1: 封面 ============ */
+        .section-hero {
+            background: linear-gradient(165deg, #2d0b4e 0%, #4a1772 30%, #3b1260 55%, #1e0a36 100%);
+            text-align: center;
+            position: relative;
+        }
+        .section-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 35%, rgba(168, 85, 247, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 30% 70%, rgba(124, 58, 237, 0.18) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #c084fc, #9333ea);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -1px;
+            box-shadow: 0 0 50px rgba(147, 51, 234, 0.5), 0 12px 40px rgba(107, 33, 168, 0.4);
+            position: relative;
+            animation: heroIconPulse 3s ease-in-out infinite;
+        }
+        @keyframes heroIconPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 50px rgba(147, 51, 234, 0.5), 0 12px 40px rgba(107, 33, 168, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 75px rgba(168, 85, 247, 0.7), 0 16px 50px rgba(107, 33, 168, 0.55);
+            }
+        }
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.8rem, 6vw, 4.8rem);
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-bottom: 8px;
+        }
+        .hero-title .accent {
+            background: linear-gradient(135deg, #e9d5ff, #c084fc, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 18px rgba(192, 132, 252, 0.5));
+        }
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.35rem);
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+            letter-spacing: 0.03em;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 10px 26px;
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            border-radius: 50px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.95rem;
+            letter-spacing: 0.06em;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            background: rgba(255, 255, 255, 0.06);
+            animation: badgeShimmer 3s ease-in-out infinite;
+        }
+        @keyframes badgeShimmer {
+            0%,
+            100% {
+                border-color: rgba(255, 255, 255, 0.35);
+                box-shadow: 0 0 0 rgba(168, 85, 247, 0);
+            }
+            50% {
+                border-color: rgba(255, 255, 255, 0.65);
+                box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+            }
+        }
+        .scroll-hint {
+            position: absolute;
+            bottom: 36px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            animation: scrollHintBounce 2s ease-in-out infinite;
+        }
+        .scroll-hint span {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.55);
+            letter-spacing: 0.08em;
+        }
+        .scroll-hint .arrow {
+            width: 24px;
+            height: 24px;
+            border-right: 2px solid rgba(255, 255, 255, 0.5);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            transform: rotate(45deg);
+        }
+        @keyframes scrollHintBounce {
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+
+        /* ============ SECTION 通用样式 ============ */
+        .section-light {
+            background: var(--white-soft);
+            position: relative;
+        }
+        .section-light::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(168, 85, 247, 0.06) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .section-purple {
+            background: linear-gradient(170deg, #faf5ff 0%, #f3e8ff 40%, #faf5ff 100%);
+            position: relative;
+        }
+        .section-dark-accent {
+            background: linear-gradient(170deg, #2d0b4e 0%, #3b1260 50%, #2d0b4e 100%);
+            color: #fff;
+            position: relative;
+        }
+        .section-dark-accent::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 40% 50%, rgba(168, 85, 247, 0.12) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--purple-600);
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding: 4px 14px;
+            background: rgba(147, 51, 234, 0.08);
+            border-radius: 20px;
+        }
+        .section-dark-accent .section-label {
+            color: var(--purple-300);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .section-heading {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+        .section-dark-accent .section-heading {
+            color: #fff;
+        }
+        .section-heading .highlight {
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .section-dark-accent .section-heading .highlight {
+            background: linear-gradient(135deg, #e9d5ff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 卡片 */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 24px 28px;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-smooth);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            border-color: rgba(168, 85, 247, 0.25);
+        }
+        .card-highlight {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(147, 51, 234, 0.2);
+            box-shadow: var(--shadow-md);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+        }
+        .card-red {
+            background: rgba(255, 245, 245, 0.95);
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 30px rgba(239, 68, 68, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .card-red::after {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 80px;
+            height: 80px;
+            background: rgba(239, 68, 68, 0.08);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* ============ 痛点列表 ============ */
+        .pain-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .pain-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(168, 85, 247, 0.1);
+            transition: all var(--transition-smooth);
+            cursor: default;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .pain-list li:hover {
+            border-color: rgba(168, 85, 247, 0.3);
+            box-shadow: var(--shadow-md);
+            transform: translateX(4px);
+            background: #fff;
+            color: var(--text-primary);
+        }
+        .pain-list li .pain-icon {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--purple-700);
+        }
+        .pain-list li:hover .pain-icon {
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            color: #fff;
+            transition: all var(--transition-smooth);
+        }
+
+        /* ============ 时间线 ============ */
+        .timeline {
+            position: relative;
+            padding-left: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 8px;
+            bottom: 8px;
+            width: 2.5px;
+            background: linear-gradient(180deg, #c084fc 0%, #9333ea 60%, #d8b4fe 100%);
+            border-radius: 3px;
+            transition: all var(--transition-smooth);
+        }
+        .timeline.breaking::before {
+            background: linear-gradient(180deg, #c084fc 0%, #9333ea 55%, #ef4444 70%, #ef4444 100%);
+        }
+        .timeline-item {
+            position: relative;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(168, 85, 247, 0.1);
+            transition: all var(--transition-smooth);
+            cursor: default;
+        }
+        .timeline-item:hover {
+            background: #fff;
+            border-color: rgba(168, 85, 247, 0.3);
+            box-shadow: var(--shadow-md);
+            transform: translateX(3px);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2.5px solid var(--purple-500);
+            z-index: 2;
+            transition: all var(--transition-smooth);
+        }
+        .timeline-item:hover::before {
+            background: var(--purple-500);
+            box-shadow: 0 0 16px rgba(147, 51, 234, 0.5);
+            transform: scale(1.3);
+        }
+        .timeline-item.breaking-point {
+            background: rgba(255, 240, 240, 0.9);
+            border: 2px solid rgba(239, 68, 68, 0.45);
+            animation: shakeCard 0.6s ease-in-out;
+            box-shadow: 0 6px 24px rgba(239, 68, 68, 0.2);
+        }
+        .timeline-item.breaking-point::before {
+            background: #ef4444 !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            animation: pulseRed 1.5s ease-in-out infinite;
+            width: 14px;
+            height: 14px;
+            left: -28px;
+            top: 18px;
+        }
+        @keyframes shakeCard {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-5px);
+            }
+            40% {
+                transform: translateX(5px);
+            }
+            60% {
+                transform: translateX(-3px);
+            }
+            80% {
+                transform: translateX(3px);
+            }
+        }
+        @keyframes pulseRed {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 35px rgba(239, 68, 68, 0.9), 0 0 50px rgba(239, 68, 68, 0.4);
+            }
+        }
+        .timeline-version {
+            font-weight: 700;
+            color: var(--purple-700);
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+            font-family: var(--font-mono);
+        }
+        .timeline-item.breaking-point .timeline-version {
+            color: var(--red-dark);
+            font-size: 1.1rem;
+        }
+        .timeline-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 2px;
+            line-height: 1.5;
+        }
+        .timeline-blockquote {
+            margin-top: 6px;
+            padding: 8px 14px;
+            background: rgba(147, 51, 234, 0.04);
+            border-left: 3px solid var(--purple-300);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* ============ 功能卡片网格 ============ */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(168, 85, 247, 0.12);
+            border-radius: var(--radius-md);
+            padding: 22px 20px;
+            transition: all var(--transition-smooth);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card:hover {
+            border-color: rgba(168, 85, 247, 0.35);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+            background: #fff;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #9333ea, #c084fc);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+        }
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        .feature-card-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .feature-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ============ 对比表格 ============ */
+        .compare-table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            background: #fff;
+            border: 1px solid rgba(168, 85, 247, 0.1);
+        }
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            min-width: 550px;
+        }
+        .compare-table thead th {
+            background: linear-gradient(135deg, #2d0b4e, #4a1772);
+            color: #fff;
+            padding: 16px 20px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            font-size: 0.9rem;
+        }
+        .compare-table thead th:first-child {
+            text-align: left;
+            border-radius: var(--radius-md) 0 0 0;
+        }
+        .compare-table thead th:last-child {
+            border-radius: 0 var(--radius-md) 0 0;
+            background: linear-gradient(135deg, #581c87, #7e22ce);
+            position: relative;
+        }
+        .compare-table thead th:last-child::after {
+        }
+        .compare-table tbody td {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.08);
+            text-align: center;
+            color: var(--text-secondary);
+            transition: background var(--transition-fast);
+        }
+        .compare-table tbody td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .compare-table tbody tr:hover td {
+            background: rgba(168, 85, 247, 0.03);
+        }
+        .compare-table .check-yes {
+            color: #16a34a;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .compare-table .check-no {
+            color: #d1d5db;
+            font-size: 1.1rem;
+        }
+        .compare-table .cell-highlight {
+            color: var(--purple-700);
+            font-weight: 600;
+        }
+
+        /* ============ HUD 特性列表 ============ */
+        .hud-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            list-style: none;
+        }
+        .hud-list li {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            border: 1px solid rgba(168, 85, 247, 0.15);
+            transition: all var(--transition-smooth);
+            cursor: default;
+            white-space: nowrap;
+        }
+        .hud-list li:hover {
+            background: #fff;
+            border-color: var(--purple-400);
+            box-shadow: var(--shadow-sm);
+            color: var(--purple-700);
+            transform: translateY(-2px);
+        }
+        .hud-list li.icon-tag {
+            font-weight: 600;
+            background: rgba(147, 51, 234, 0.06);
+            border-color: rgba(147, 51, 234, 0.25);
+            color: var(--purple-700);
+        }
+
+        /* ============ 号召行动 ============ */
+        .cta-section {
+            text-align: center;
+        }
+        .cta-tag {
+            display: inline-block;
+            padding: 8px 22px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: #fff;
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            margin-bottom: 16px;
+        }
+        .cta-owner {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            margin-top: 8px;
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 768px) {
+            .section {
+                padding: 28px 16px;
+            }
+            .section-inner {
+                max-width: 100%;
+            }
+            .card {
+                padding: 16px 18px;
+            }
+            .card-highlight {
+                padding: 18px 20px;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .feature-card {
+                padding: 16px 14px;
+            }
+            .feature-card h3 {
+                font-size: 1rem;
+            }
+            .timeline {
+                padding-left: 24px;
+            }
+            .timeline::before {
+                left: 7px;
+            }
+            .timeline-item::before {
+                left: -21px;
+                width: 8px;
+                height: 8px;
+            }
+            .timeline-item.breaking-point::before {
+                left: -23px;
+                width: 12px;
+                height: 12px;
+                top: 16px;
+            }
+            .compare-table {
+                font-size: 0.8rem;
+                min-width: 440px;
+            }
+            .compare-table thead th,
+            .compare-table tbody td {
+                padding: 10px 12px;
+            }
+            .hud-list li {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+            .pain-list li {
+                padding: 12px 14px;
+                font-size: 0.95rem;
+                gap: 10px;
+            }
+            .pain-list li .pain-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.85rem;
+                border-radius: 8px;
+            }
+        }
+        @media (max-width: 480px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .compare-table {
+                font-size: 0.72rem;
+                min-width: 380px;
+            }
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .hero-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8rem;
+                border-radius: 16px;
+            }
+            .nav-dots {
+                right: 6px;
+                gap: 8px;
+            }
+            .nav-dot {
+                width: 8px;
+                height: 8px;
+            }
+            .nav-dot.active {
+                width: 10px;
+                height: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== 背景装饰 ==================== -->
+    <div class="bg-ambient">
+        <div class="bg-orb bg-orb--1"></div>
+        <div class="bg-orb bg-orb--2"></div>
+        <div class="bg-orb bg-orb--3"></div>
+        <div class="bg-orb bg-orb--4"></div>
+        <div class="bg-grid"></div>
+    </div>
+    <div class="particles-container">
+        <span class="particle"></span><span class="particle"></span><span class="particle"></span>
+        <span class="particle"></span><span class="particle"></span><span class="particle"></span>
+        <span class="particle"></span><span class="particle"></span>
+    </div>
+
+    <!-- ==================== 导航点 ==================== -->
+    <nav class="nav-dots" aria-label="页面导航">
+        <button class="nav-dot active" data-index="0" aria-label="封面"><span class="nav-dot-label">封面</span></button>
+        <button class="nav-dot" data-index="1" aria-label="痛点"><span class="nav-dot-label">痛点</span></button>
+        <button class="nav-dot" data-index="2" aria-label="历程上"><span class="nav-dot-label">我们的历程</span></button>
+        <button class="nav-dot" data-index="3" aria-label="历程下"><span class="nav-dot-label">转折</span></button>
+        <button class="nav-dot" data-index="4" aria-label="介绍"><span class="nav-dot-label">Oxygen 4</span></button>
+        <button class="nav-dot" data-index="5" aria-label="特性"><span class="nav-dot-label">核心特性</span></button>
+        <button class="nav-dot" data-index="6" aria-label="更多"><span class="nav-dot-label">HUD & 插件</span></button>
+        <button class="nav-dot" data-index="7" aria-label="对比"><span class="nav-dot-label">功能对比</span></button>
+        <button class="nav-dot" data-index="8" aria-label="结尾"><span class="nav-dot-label">Coming Soon</span></button>
+    </nav>
+
+    <!-- ==================== 主滚动容器 ==================== -->
+    <main class="main-scroll">
+
+        <!-- ========== SECTION 1: 封面 ========== -->
+        <section class="section section-hero" data-section="0">
+            <div class="section-inner anim-reveal">
+                <div class="hero-icon">O4</div>
+                <h1 class="hero-title">Oxygen <span class="accent">4</span></h1>
+                <p class="hero-subtitle">开启智能课堂点名新时代。</p>
+                <span class="hero-badge">敬请期待 ✦ Coming Soon</span>
+            </div>
+            <div class="scroll-hint">
+                <span>向下滚动</span>
+                <div class="arrow"></div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 2: 痛点 ========== -->
+        <section class="section section-light" data-section="1">
+            <div class="section-inner anim-reveal-up">
+                <span class="section-label">🤯问题</span>
+                <h2 class="section-heading">痛点是什么？</h2>
+                <ul class="pain-list anim-stagger" style="margin-top:8px;">
+                    <li>
+                        <span class="pain-icon">⏳</span>
+                        <span>老师点名耗费<strong>大量时间精力</strong>？</span>
+                    </li>
+                    <li>
+                        <span class="pain-icon">🙋</span>
+                        <span>经常只有<strong>少数人</strong>能参与课堂？</span>
+                    </li>
+                    <li>
+                        <span class="pain-icon">🔁</span>
+                        <span>传统点名软件<strong>周期随机</strong>明显？</span>
+                    </li>
+                    <li>
+                        <span class="pain-icon">🤷</span>
+                        <span>为什么他们<strong>总是</strong>不会被抽到？</span>
+                    </li>
+                    <li>
+                        <span class="pain-icon">💭</span>
+                        <span>......</span>
+                    </li>
+                </ul>
+                <div class="card-highlight anim-reveal" style="margin-top:24px;text-align:center;">
+                    <p style="font-size:1.1rem;font-weight:600;color:var(--purple-800);margin:0;">
+                        现在，这一切都将成为历史。<br>因为，这也是<strong>我们要解决的</strong>。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 3: 历程（上） ========== -->
+        <section class="section section-purple" data-section="2">
+            <div class="section-inner anim-reveal-up">
+                <span class="section-label">🎉起步</span>
+                <h2 class="section-heading">我们的历程 <span style="font-size:0.7em;color:var(--text-muted);">· 上半</span></h2>
+                <div class="timeline anim-stagger" style="margin-top:12px;">
+                    <div class="timeline-item">
+                        <div class="timeline-version">随机抽号软件 v1.0 – v1.6</div>
+                        <div class="timeline-blockquote">依赖于 CoCo Framework 和 JavaScript，<br>周期性过于明显，使用极其繁琐。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-version">随机抽号系统 v2.0 – v2.4</div>
+                        <div class="timeline-blockquote">引入不放回机制，保证公平性。<br>但这就够了吗？我们需要更深入些。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-version">Oxygen 3.0 Beta</div>
+                        <div class="timeline-desc">基于 Python 3.12 开发，架构更稳定，一触即发更便捷。但这只是起点。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-version">Oxygen 3.2 Beta</div>
+                        <div class="timeline-desc">引入超整型插值算法，有效降低周期性。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-version">Oxygen 3.3 Beta</div>
+                        <div class="timeline-desc">引入种子扩域算法，周期性进一步降低。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-version">Oxygen 3.4 Beta</div>
+                        <div class="timeline-desc">引入数据库加密机制，数据公开更上一层楼。小动作，无处藏。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 4: 历程（下）+ 转折 ========== -->
+        <section class="section section-light" data-section="3">
+            <div class="section-inner anim-reveal-up">
+                <span class="section-label">⚡ 转折</span>
+                <h2 class="section-heading">历程 <span style="font-size:0.7em;color:var(--text-muted);">· 下半</span></h2>
+                <div class="timeline breaking anim-stagger" style="margin-top:12px;">
+                    <div class="timeline-item">
+                        <div class="timeline-version">Oxygen 3.6 Beta</div>
+                        <div class="timeline-desc">引入直方加权算法，公平再升级。</div>
+                    </div>
+                    <div class="timeline-item breaking-point">
+                        <div class="timeline-version">⚠ Oxygen 3.7 Beta</div>
+                        <div class="timeline-desc" style="color:var(--red-dark);font-weight:700;font-size:1.05rem;">
+                            删库了。
+                        </div>
+                    </div>
+                </div>
+                <div class="card-highlight anim-reveal" style="margin-top:22px;">
+                    <h3 style="font-size:1.3rem;color:var(--purple-800);margin-bottom:8px;">为什么？？</h3>
+                    <ul style="color:var(--text-secondary);line-height:2;padding-left:18px;">
+                        <li>大量的算法堆积导致<strong>程序臃肿</strong>；</li>
+                        <li>Python 的解释器<strong>效率低下</strong>；</li>
+                        <li>程序的扩展使系统<strong>越来越不稳定</strong>……</li>
+                    </ul>
+                    <p style="margin-top:10px;font-weight:600;color:var(--purple-700);">
+                        我们需要一个更快、更便捷、更通用的解决方案。
+                    </p>
+                    <p style="font-size:1.2rem;font-weight:700;color:var(--purple-900);margin-top:6px;">
+                        下面，为你介绍：<br>
+                        <span style="font-size:1.6rem;background:linear-gradient(135deg,#9333ea,#7e22ce);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">
+                            Oxygen 4 Java Edition
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 5: Oxygen 4 + 下载使用 + 向导 ========== -->
+        <section class="section section-dark-accent" data-section="4">
+            <div class="section-inner anim-reveal-up">
+                <span class="section-label">🚀 新生</span>
+                <h2 class="section-heading">Oxygen 4 <span class="highlight">Java Edition</span></h2>
+                <div class="feature-grid anim-stagger" style="margin-top:20px;">
+                    <div class="feature-card" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:#fff;">
+                        <div class="feature-card-icon">📦</div>
+                        <h3 style="color:#fff;">下载使用，一气呵成</h3>
+                        <p style="color:rgba(255,255,255,0.7);">
+                            <strong>Oxygen 3.x</strong> — Python 工程，部署复杂，需安装环境。<br>
+                            <strong>Oxygen 4.x</strong> — Java 打包程序，下载安装，一步到位。
+                        </p>
+                    </div>
+                    <div class="feature-card" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:#fff;">
+                        <div class="feature-card-icon">🧭</div>
+                        <h3 style="color:#fff;">全新引导式向导</h3>
+                        <p style="color:rgba(255,255,255,0.7);">
+                            设置向导替你搞定一切，解放双手，开箱即用，你的时间值得更好的安排。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 6: 新底层 + EKV数据库 + 插件系统 ========== -->
+        <section class="section section-purple" data-section="5">
+            <div class="section-inner anim-reveal-up">
+                <span class="section-label">⚙️ 核心升级</span>
+                <h2 class="section-heading">新底层 · 新架构</h2>
+                <div class="feature-grid anim-stagger" style="margin-top:16px;">
+                    <div class="feature-card">
+                        <div class="feature-card-icon">⚡</div>
+                        <h3>新底层，快快快快到飞起</h3>
+                        <p>Java 底层，编译运行速度大幅提升，对比 Python 运行效率提升 <strong style="color:var(--purple-700);">900%</strong>！科技不需要等待。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-icon">🔐</div>
+                        <h3>专用 EKV 数据库</h3>
+                        <p>独创 EKV 数据库格式，拒绝破解数据库，<strong>小动作无处遁形</strong>。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-icon">🔌</div>
+                        <h3>插件系统，你来定义</h3>
+                        <p>支持全新 <strong>opp 插件</strong>，兼容旧 py 插件。<br>换了语言，<em>不换习惯</em>。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 7: HUD + 扩展 ========== -->
+        <section class="section section-light" data-section="6">
+            <div class="section-inner anim-reveal-up">
+                <span class="section-label">🖥️ HUD 系统</span>
+                <h2 class="section-heading">HUD……？</h2>
+                <p style="color:var(--text-secondary);margin-bottom:16px;font-size:1.05rem;">
+                    HUD 系统，显示课堂信息，一切皆有可能。
+                </p>
+                <ul class="hud-list anim-stagger">
+                    <li class="icon-tag">📅 课程表</li>
+                    <li>⏰ 时间</li>
+                    <li>📆 日期</li>
+                    <li>🌤️ 天气</li>
+                    <li>📆 倒数日</li>
+                    <li>📝 作业</li>
+                    <li>📋 考试计时</li>
+                    <li>🔔 上课下课提醒</li>
+                    <li>🖱️ 交互式HUD</li>
+                    <li>📡 通知接口</li>
+                </ul>
+                <p style="margin-top:14px;color:var(--purple-600);font-weight:600;font-style:italic;text-align:center;font-size:1.05rem;">
+                    想到就要勇敢去做。
+                </p>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 8: 功能对比表 ========== -->
+        <section class="section section-purple" data-section="7">
+            <div class="section-inner anim-reveal-up">
+                <span class="section-label">📊 对比</span>
+                <h2 class="section-heading">更多功能</h2>
+                <div class="compare-table-wrap anim-reveal" style="margin-top:16px;">
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th>功能</th>
+                                <th>Oxygen 3.x</th>
+                                <th>Oxygen 4.x</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>支持平台</td>
+                                <td>Windows</td>
+                                <td class="cell-highlight">Windows / macOS / Linux</td>
+                            </tr>
+                            <tr>
+                                <td>数据类型</td>
+                                <td>namesbook (Base64)</td>
+                                <td class="cell-highlight">EKV</td>
+                            </tr>
+                            <tr>
+                                <td>安全随机</td>
+                                <td><span class="check-no">✕</span></td>
+                                <td><span class="cell-highlight">✔ 支持</span></td>
+                            </tr>
+                            <tr>
+                                <td>配置向导</td>
+                                <td><span class="check-no">✕</span></td>
+                                <td><span class="cell-highlight">✔ 支持</span></td>
+                            </tr>
+                            <tr>
+                                <td>Dashboard</td>
+                                <td>有限</td>
+                                <td class="cell-highlight">✔ 支持</td>
+                            </tr>
+                            <tr>
+                                <td>开放接口</td>
+                                <td>支持 APIv3</td>
+                                <td class="cell-highlight">支持 APIv4.x</td>
+                            </tr>
+                            <tr>
+                                <td>主题系统</td>
+                                <td><span class="check-no">✕</span></td>
+                                <td><span class="cell-highlight">✔ 支持</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SECTION 9: 结尾 ========== -->
+        <section class="section section-dark-accent cta-section" data-section="8">
+            <div class="section-inner anim-reveal">
+                <span class="cta-tag">✦ Coming Soon ✦</span>
+                <h2 style="font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);color:#fff;font-weight:700;letter-spacing:-0.01em;margin-bottom:10px;">
+                    Oxygen <span style="background:linear-gradient(135deg,#e9d5ff,#c084fc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">4</span>
+                </h2>
+                <p style="color:rgba(255,255,255,0.8);font-size:1.1rem;letter-spacing:0.03em;">
+                    开启智能课堂点名新时代。
+                </p>
+                <div style="margin-top:28px;width:60px;height:2px;background:rgba(255,255,255,0.3);margin-left:auto;margin-right:auto;border-radius:1px;"></div>
+                <p class="cta-owner" style="margin-top:14px;">
+                    Oxygen 4，所有权归 <strong>Teak75035</strong> 所有。
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== 脚本 ==================== -->
+    <script>
+        (function() {
+            const sections = document.querySelectorAll('.section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            const mainScroll = document.querySelector('.main-scroll');
+            let currentIndex = 0;
+            let isScrolling = false;
+            let scrollTimeout;
+            let observerInitialized = false;
+
+            // ---------- Intersection Observer：触发动画 + 更新导航 ----------
+            const observerOptions = {
+                root: null,
+                rootMargin: '-15% 0px -15% 0px',
+                threshold: [0, 0.3, 0.6, 0.9]
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
+                        const idx = parseInt(entry.target.getAttribute('data-section'));
+                        if (!isNaN(idx) && idx !== currentIndex) {
+                            updateActiveNav(idx);
+                        }
+                        // 触发动画
+                        const animEls = entry.target.querySelectorAll(
+                            '.anim-reveal, .anim-reveal-up, .anim-fade-in, .anim-stagger');
+                        animEls.forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    }
+                });
+
+                // 精确确定当前section
+                let bestIdx = currentIndex;
+                let bestRatio = 0;
+                entries.forEach(entry => {
+                    if (entry.intersectionRatio > bestRatio && entry.isIntersecting) {
+                        bestRatio = entry.intersectionRatio;
+                        const idx = parseInt(entry.target.getAttribute('data-section'));
+                        if (!isNaN(idx)) bestIdx = idx;
+                    }
+                });
+                if (bestRatio > 0.25 && bestIdx !== currentIndex) {
+                    updateActiveNav(bestIdx);
+                }
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+                observerInitialized = true;
+            });
+
+            // ---------- 初始触发可见section的动画 ----------
+            function triggerInitialAnimations() {
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    const windowHeight = window.innerHeight;
+                    if (rect.top < windowHeight * 0.75 && rect.bottom > windowHeight * 0.15) {
+                        const animEls = section.querySelectorAll(
+                            '.anim-reveal, .anim-reveal-up, .anim-fade-in, .anim-stagger');
+                        animEls.forEach(el => {
+                            el.classList.add('visible');
+                        });
+                        const idx = parseInt(section.getAttribute('data-section'));
+                        if (!isNaN(idx) && rect.top < windowHeight * 0.4 && rect.bottom > windowHeight * 0.4) {
+                            updateActiveNav(idx, true);
+                        }
+                    }
+                });
+            }
+
+            // ---------- 更新导航激活状态 ----------
+            function updateActiveNav(index, silent = false) {
+                if (index === currentIndex && !silent) return;
+                currentIndex = index;
+                navDots.forEach(dot => {
+                    const dotIndex = parseInt(dot.getAttribute('data-index'));
+                    if (dotIndex === index) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+
+            // ---------- 导航点点击 ----------
+            navDots.forEach(dot => {
+                dot.addEventListener('click', () => {
+                    const index = parseInt(dot.getAttribute('data-index'));
+                    if (isNaN(index) || index >= sections.length) return;
+                    const targetSection = sections[index];
+                    if (targetSection) {
+                        isScrolling = true;
+                        updateActiveNav(index);
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        clearTimeout(scrollTimeout);
+                        scrollTimeout = setTimeout(() => {
+                            isScrolling = false;
+                        }, 900);
+                    }
+                });
+            });
+
+            // ---------- 键盘导航 ----------
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'j') {
+                    e.preventDefault();
+                    if (currentIndex < sections.length - 1) {
+                        const next = currentIndex + 1;
+                        updateActiveNav(next);
+                        sections[next].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'k') {
+                    e.preventDefault();
+                    if (currentIndex > 0) {
+                        const prev = currentIndex - 1;
+                        updateActiveNav(prev);
+                        sections[prev].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    updateActiveNav(0);
+                    sections[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else if (e.key === 'End') {
+                    e.preventDefault();
+                    const last = sections.length - 1;
+                    updateActiveNav(last);
+                    sections[last].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+
+            // ---------- 触摸/滚轮防抖 ----------
+            let wheelAccumulator = 0;
+            let wheelTimer;
+            document.addEventListener('wheel', (e) => {
+                if (isScrolling) {
+                    e.preventDefault();
+                    return;
+                }
+                wheelAccumulator += Math.abs(e.deltaY);
+                clearTimeout(wheelTimer);
+                wheelTimer = setTimeout(() => {
+                    wheelAccumulator = 0;
+                }, 300);
+                if (wheelAccumulator > 200) {
+                    isScrolling = true;
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        isScrolling = false;
+                        wheelAccumulator = 0;
+                    }, 850);
+                }
+            }, { passive: false });
+
+            // ---------- 初始化 ----------
+            function init() {
+                triggerInitialAnimations();
+                // 确保初始动画在短延迟后再次检查
+                setTimeout(triggerInitialAnimations, 300);
+                setTimeout(triggerInitialAnimations, 800);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            // 窗口大小改变时重新检查
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    triggerInitialAnimations();
+                }, 250);
+            });
+
+            console.log('%c✨ Oxygen 4 %c— 开启智能课堂点名新时代 %c| %cTeak75035',
+                'font-size:1.2em;font-weight:bold;color:#9333ea;',
+                'color:#7e22ce;',
+                '',
+                'color:#a78bfa;font-style:italic;');
+        })();
+    </script>
+</body>
+</html>
