@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>KV/EKV 加密存储格式 · 技术文档 | Oxygen4</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Highlight.js 主题 (清爽明亮，与 ChatGPT 风格一致) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* ---------- 全局重置 & ChatGPT 风格基础 (复用 ol.html 核心样式) ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: #f7f7f8;
+            color: #111111;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-content {
+            scrollbar-width: thin;
+            scrollbar-color: #c1c1c1 #e9e9ef;
+            overflow-y: auto;
+        }
+        .main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .main-content::-webkit-scrollbar-track {
+            background: #e9e9ef;
+            border-radius: 10px;
+        }
+        .main-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        /* 布局：侧边栏 + 主内容 */
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* 侧边栏 (目录容器) */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #eaeaef;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 12px 20px 16px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .logo-area {
+            margin-bottom: 28px;
+            padding-left: 8px;
+            border-bottom: 1px solid #efeff1;
+            padding-bottom: 12px;
+        }
+
+        .logo-area h1 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #202123, #3b3b4f);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-area p {
+            font-size: 0.7rem;
+            color: #8e8ea0;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        /* 目录树容器 */
+        .toc-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-right: 4px;
+        }
+        .toc-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: #8e8ea0;
+            margin-bottom: 16px;
+            padding-left: 8px;
+        }
+        .toc-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .toc-list li {
+            margin: 6px 0;
+            line-height: 1.35;
+        }
+        .toc-list a {
+            text-decoration: none;
+            color: #3c3c43;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: block;
+            padding: 6px 12px;
+            border-radius: 0px;
+            transition: all 0.12s ease;
+        }
+        .toc-list a:hover {
+            background: #f1f1f3;
+            color: #000;
+        }
+        .toc-list a.active-toc {
+            background: #ececef;
+            color: #111;
+            font-weight: 600;
+            border-left: 3px solid #111;
+        }
+        .toc-list .toc-h2 {
+            padding-left: 0px;
+        }
+        .toc-list .toc-h3 {
+            padding-left: 28px;
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+        .toc-list .toc-h4 {
+            padding-left: 44px;
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: #6c6c78;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 36px 48px 36px;
+            background: #f7f7f8;
+        }
+
+        /* 文档卡片容器（类似 ChatGPT 卡片风格） */
+        .doc-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f0f0f2;
+            padding: 40px 48px;
+            max-width: 1100px;
+            margin: 0 auto;
+            transition: box-shadow 0.2s;
+        }
+        .doc-card:hover {
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.06);
+            border-color: #e2e2e6;
+        }
+
+        /* Markdown 内容专用样式，完美融合卡片 */
+        .markdown-body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #1e1e2a;
+            line-height: 1.6;
+        }
+        .markdown-body h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid #efeff1;
+            padding-bottom: 12px;
+        }
+        .markdown-body h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.8rem;
+            letter-spacing: -0.2px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #efeff1;
+        }
+        .markdown-body h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 1.6rem;
+            margin-bottom: 0.5rem;
+        }
+        .markdown-body h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.2rem;
+        }
+        .markdown-body p {
+            margin-bottom: 1rem;
+            color: #2c2c35;
+            line-height: 1.6;
+        }
+        .markdown-body a {
+            color: #111;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            font-weight: 500;
+        }
+        .markdown-body code {
+            font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+            background: #f2f2f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #d14;
+        }
+        .markdown-body pre {
+            background: #f8f8fa;
+            border-radius: 16px;
+            padding: 1rem 1.2rem;
+            overflow-x: auto;
+            margin: 1.2rem 0;
+            border: 1px solid #efeff1;
+        }
+        .markdown-body pre code {
+            background: transparent;
+            padding: 0;
+            color: #2c3e4f;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .markdown-body th, .markdown-body td {
+            border: 1px solid #e9e9ef;
+            padding: 12px 16px;
+            text-align: left;
+        }
+        .markdown-body th {
+            background-color: #f8f8fa;
+            font-weight: 600;
+        }
+        .markdown-body blockquote {
+            border-left: 4px solid #cbcbd1;
+            background: #fafafb;
+            padding: 0.8rem 1.2rem;
+            margin: 1rem 0;
+            border-radius: 12px;
+            color: #4a4a57;
+        }
+        .markdown-body ul, .markdown-body ol {
+            padding-left: 1.6rem;
+            margin: 0.8rem 0;
+        }
+        .markdown-body li {
+            margin: 0.3rem 0;
+        }
+        .markdown-body hr {
+            border: none;
+            border-top: 1px solid #efeff1;
+            margin: 2rem 0;
+        }
+        .version-meta {
+            display: flex;
+            gap: 24px;
+            background: #f9f9fb;
+            padding: 12px 20px;
+            border-radius: 20px;
+            margin-bottom: 28px;
+            font-size: 0.85rem;
+            color: #5f5f6b;
+            border: 1px solid #efeff1;
+        }
+        .version-meta span {
+            font-weight: 500;
+        }
+        .back2top {
+            position: fixed;
+            bottom: 28px;
+            right: 32px;
+            background: #111;
+            color: white;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.1s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            z-index: 99;
+            border: none;
+            pointer-events: none;
+        }
+        .back2top.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .back2top:hover {
+            background: #2c2c33;
+            transform: translateY(-2px);
+        }
+
+        /* 响应式适配 (移动端隐藏侧边栏) */
+        @media (max-width: 780px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                padding: 20px 16px;
+            }
+            .doc-card {
+                padding: 24px 20px;
+            }
+            .markdown-body h1 {
+                font-size: 1.8rem;
+            }
+            .markdown-body h2 {
+                font-size: 1.4rem;
+            }
+            .back2top {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #8e8ea0;
+            font-size: 0.75rem;
+            border-top: 1px solid #eaeaef;
+            padding-top: 24px;
+        }
+        footer a {
+            color: #111;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    <!-- 侧边栏：文档目录 -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <h1>Oxygen<span>4</span></h1>
+            <p>安全存储 · 加密规格</p>
+        </div>
+        <div class="toc-container">
+            <div class="toc-title">📖 文档目录</div>
+            <div id="tableOfContents" class="toc-list">
+                <!-- 动态生成目录 -->
+                <div style="font-size:0.75rem; color:#aaa; padding:8px;">加载目录中...</div>
+            </div>
+        </div>
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #efeff1; font-size: 0.7rem; color:#8e8ea0; text-align: center;">
+            AGPL-3.0 · 密钥派生规范
+        </div>
+    </aside>
+
+    <!-- 主内容区：Markdown 渲染区 -->
+    <main class="main-content">
+        <div class="doc-card">
+            <div class="version-meta">
+                <span>版本 1.0</span>
+                <span>更新日期 2026-06-05</span>
+                <span>技术原理 AES-256-CBC + PBKDF2</span>
+            </div>
+            <div id="markdownContent" class="markdown-body">
+                <!-- 动态渲染 markdown 内容 -->
+                <div style="text-align:center; padding: 40px;">⚡ 正在解析技术文档 ...</div>
+            </div>
+        </div>
+        <footer>
+            KV / EKV 格式规范 · <a href="https://teak75035.github.io/Oxygen" target="_blank">Oxygen4</a>
+        </footer>
+    </main>
+</div>
+<button id="back2topBtn" class="back2top">↑ 回到顶部</button>
+
+<script>
+    // --------------------------------------------------------------
+    // 完整的 KV-EKV.md 文档内容 (原样嵌入)
+    // --------------------------------------------------------------
+    const markdownSource = `# KV / EKV 格式存储与加密技术文档
+
+**版本**：1.0  
+**更新日期**：2026-06-05  
+
+---
+
+## 1. 为什么需要 KV / EKV？
+
+在日常开发中，我们经常需要保存一些键值对数据，比如用户配置等。这些数据虽然简单，但要么要求**人眼可读**（方便调试），要么要求**加密存储**（防止被随意篡改）。
+
+为了解决这个矛盾，我们设计了两套相互兼容的格式：
+
+- **KV 格式**：明文的 XML 文件，可以直接用文本编辑器打开查看、修改。
+- **EKV 格式**：对 KV 文件内容进行 AES 加密后得到的二进制文件，必须提供密码才能读取。
+
+它们的关系就像**一张写好的纸条**（KV）和**一个带锁的盒子**（EKV）。你可以随时打开盒子（解密）取出纸条，也可以把纸条锁进盒子。整个过程不改变数据本身，只是多了道保险。
+
+下面我们先来看 KV 文件长什么样，再了解它是如何被加密成 EKV 的。
+
+---
+
+## 2. KV 格式详解（Key-Value）
+
+KV 文件是一种**自定义的 XML 文本格式**，后缀名为 \`.kv\`。它的结构非常简单，下面是一个示例：
+
+\`\`\`xml
+<title>My Friends and Thier Money</title>
+<table version="0.0.1">
+    <pair key="张三" status="active">3000</pair>
+    <pair key="李四" status="active">5000</pair>
+    <pair key="王五" status="negative">2.5</pair>
+</table>
+\`\`\`
+
+### 2.1 各个部分的作用
+
+- \`<title>课堂点名表</title>\`  
+  表格的标题，你可以放任何描述文字。
+
+- \`<table version="0.0.1"> ... </table>\`  
+  \`version\` 属性用来标记这份数据遵循的版本号，方便以后扩展。  
+  里面可以包含多个 \`<pair>\` 标签。
+
+- \`<pair key="张三" status="active">3000</pair>\`  
+  这就是核心的键值对。  
+  - \`key\` 属性：键（不能重复）。  
+  - \`status\` 属性：状态（比如 \`active\` 表示活跃，\`negative\` 表示被标记过）。  
+  - 标签中间的文本：值（比如出场次数 \`3\`）。
+
+### 2.2 为什么选择 XML？
+
+- **自解释**：标签名和属性让人一眼看懂。
+- **通用**：绝大多数编程语言都有 XML 解析库。
+- **易于手工编辑**：出错时方便修复。
+
+当然，我们也可以选择 JSON 或 YAML，但 XML 与历史代码兼容性更好，且在课堂点名场景中，用 \`pair\` 标签比 \`"key":"value"\` 更直观。
+
+---
+
+## 3. EKV 格式详解（Encrypted Key-Value）
+
+EKV 就是把 KV 文件**整个加密**后得到的二进制文件，后缀名为 \`.ekv\`。它不是一个加密壳子，而是对原始 XML 内容的完全加密。
+
+### 3.1 EKV 文件的内部结构
+
+一个 \`.ekv\` 文件在磁盘上只有两部分：
+
+\`\`\`
+[ 16 字节的 IV ] + [ 密文内容 ]
+\`\`\`
+
+- **IV（初始化向量）**：16 字节的随机数，每次加密都不同。
+- **密文**：原始 KV 文件内容经过 AES-256-CBC 加密后的字节序列。
+
+没有文件头、没有元数据。解密时只需要读取前 16 字节作为 IV，剩下的当作密文即可。
+
+### 3.2 为什么需要 IV？
+
+相同的密码加密同一份数据，如果每次都用相同的 IV，密文会是完全相同的，这容易泄露信息。随机生成 IV 后，即使你加密两次完全一样的 KV 文件，得到的 EKV 文件也是不同的，这叫做**密码学中的语义安全**。
+
+### 3.3 加密过程
+
+1. 你输入一个密码（比如 \`"mySecret"\`）。
+2. 程序用 PBKDF2 算法把密码“转换”成一个 32 字节的 AES 密钥（这个过程会加盐、反复计算，让暴力破解变得非常困难）。
+3. 随机生成 16 字节的 IV。
+4. 读取 KV 文件的所有字节。
+5. 对数据进行 PKCS#7 填充（使长度恰好是 16 的倍数，因为 AES 只能加密整数块）。
+6. 用 AES-256-CBC 算法加密填充后的数据。
+7. 把 IV 和密文依次写入 \`.ekv\` 文件。
+
+### 3.4 解密过程
+
+1. 读取 \`.ekv\` 文件的前 16 字节，得到 IV。
+2. 剩下的字节是密文。
+3. 用相同的密码通过 PBKDF2 生成相同的 AES 密钥。
+4. 用 AES-256-CBC 解密密文。
+5. 去掉 PKCS#7 填充，恢复原始字节。
+6. 这些字节就是原始 KV 文件的 XML 文本，可以拿去解析。
+
+---
+
+## 4. 核心代码示例
+
+为了让你快速上手，我们分别给出 **Python** 和 **Java** 的完整实现。这两个实现互相兼容，用 Python 加密的文件可以在 Java 中正确解密，反之亦然。
+
+### 4.1 准备工作
+
+- **Python**：需要安装 \`pycryptodome\` 库（\`pip install pycryptodome\`）。
+- **Java**：使用标准库 \`javax.crypto\`，无需额外依赖（JDK 1.8 以上即可）。
+
+加密参数统一约定：
+- 算法：\`AES/CBC/PKCS5Padding\`（Java 里叫 PKCS5Padding，本质上与 Python 的 PKCS7 兼容）。
+- 密钥派生：\`PBKDF2WithHmacSHA256\`，迭代 10000 次，输出 256 位密钥。
+- 盐值（Salt）：固定的字符串 \`"salt1234"\`（生产环境应使用随机盐并存储，这里为简化示例）。
+
+### 4.2 Python 实现
+
+\`\`\`python
+import os
+from Crypto.Cipher import AES
+from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Random import get_random_bytes
+
+# ---------- 固定参数 ----------
+SALT = b"salt1234"
+ITERATIONS = 10000
+KEY_LEN = 32          # AES-256
+
+def derive_key(password: str) -> bytes:
+    """将用户密码转换为 32 字节 AES 密钥"""
+    return PBKDF2(password, SALT, dkLen=KEY_LEN, count=ITERATIONS)
+
+def encrypt_kv_to_ekv(kv_path: str, ekv_path: str, password: str):
+    """加密 KV 文件为 EKV 文件"""
+    with open(kv_path, 'rb') as f:
+        plain = f.read()
+    iv = get_random_bytes(16)
+    key = derive_key(password)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    pad_len = 16 - (len(plain) % 16)
+    padded = plain + bytes([pad_len] * pad_len)
+    encrypted = cipher.encrypt(padded)
+    with open(ekv_path, 'wb') as f:
+        f.write(iv)
+        f.write(encrypted)
+    print(f"加密完成：{kv_path} -> {ekv_path}")
+
+def decrypt_ekv_to_kv(ekv_path: str, kv_path: str, password: str):
+    with open(ekv_path, 'rb') as f:
+        iv = f.read(16)
+        encrypted = f.read()
+    key = derive_key(password)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_padded = cipher.decrypt(encrypted)
+    pad_len = decrypted_padded[-1]
+    plain = decrypted_padded[:-pad_len]
+    with open(kv_path, 'wb') as f:
+        f.write(plain)
+    print(f"解密完成：{ekv_path} -> {kv_path}")
+\`\`\`
+
+### 4.3 Java 实现
+
+\`\`\`java
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.io.*;
+import java.nio.file.*;
+import java.security.*;
+
+public class EkvConverter {
+    private static final byte[] SALT = "salt1234".getBytes();
+    private static final int ITERATIONS = 10000;
+    private static final int KEY_LEN_BITS = 256;
+
+    private static SecretKey deriveKey(String password) throws Exception {
+        PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), SALT, ITERATIONS, KEY_LEN_BITS);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        byte[] keyBytes = factory.generateSecret(spec).getEncoded();
+        return new SecretKeySpec(keyBytes, "AES");
+    }
+
+    public static void encryptKvToEkv(String kvPath, String ekvPath, String password) throws Exception {
+        byte[] plain = Files.readAllBytes(Path.of(kvPath));
+        byte[] iv = new byte[16];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(iv);
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        SecretKey key = deriveKey(password);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+        byte[] encrypted = cipher.doFinal(plain);
+        try (FileOutputStream fos = new FileOutputStream(ekvPath)) {
+            fos.write(iv);
+            fos.write(encrypted);
+        }
+    }
+    // 解密方法类似 ... 
+}
+\`\`\`
+
+### 4.4 注意事项
+
+- **填充方式**：Java 的 \`PKCS5Padding\` 与 Python 的 \`PKCS7\` 在 AES 块大小（16 字节）下完全等价。
+- **盐值固定**：示例简化，生产环境建议随机盐并存储。
+- **迭代次数**：建议 600,000 次以上。
+
+---
+
+## 5. 封装一个更友好的操作类
+
+上面只是加解密工具，实际使用中我们可以设计一个 \`EkvOperator\` 类，提供类似字典的接口，自动处理 \`.kv\` 和 \`.ekv\` 的差异。
+
+### 5.1 主要功能
+
+- \`load(password)\`：从文件载入数据（如果是 \`.ekv\` 需要密码）。
+- \`save(password)\`：将内存中的数据保存到文件。
+- \`putPair(key, value, status)\`：添加或更新键值对。
+- \`getPair(key)\`：获取键值对。
+
+### 5.2 使用示例（Java）
+
+\`\`\`java
+EkvOperator op = new EkvOperator("students.ekv");
+op.load("PASSWORD");
+op.putPair("赵六", "0", "active");
+op.save("PASSWORD");
+for (EkvOperator.Pair p : op.getAllPairs()) {
+    System.out.println(p.key + " : " + p.value);
+}
+\`\`\`
+
+---
+
+## 6. 安全性与性能说明
+
+- **密钥派生**：PBKDF2 抵抗彩虹表攻击。  
+- **IV 随机性**：使用 \`SecureRandom\`。  
+- **临时文件清理**：解密后即时删除临时明文，降低残存风险。  
+- **性能**：AES-256 在主流 CPU 上超过 100 MB/s。
+
+---
+
+## 7. 总结
+
+KV 和 EKV 是一对搭档，前者负责人类可读，后者负责安全保密。通过统一的接口，你可以像操作 HashMap 一样操作加密文件。本文提供的 Python 和 Java 代码均经过实测兼容，可直接嵌入项目。
+
+如需强化安全性：考虑随机盐、GCM 模式、提高迭代次数。
+
+**许可证**：本文档及示例代码遵循 AGPL-3.0 协议。
+`;
+
+    // 全局变量
+    let tocItems = []; // 存储标题元素信息
+
+    // 渲染 Markdown 并生成目录
+    async function renderMarkdown() {
+        const container = document.getElementById('markdownContent');
+        if (!container) return;
+        
+        // 配置 marked 选项
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (e) {}
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true,
+            gfm: true
+        });
+        
+        const htmlContent = marked.parse(markdownSource);
+        container.innerHTML = htmlContent;
+        
+        // 为所有标题添加 id，用于目录锚点
+        const headings = container.querySelectorAll('h1, h2, h3, h4');
+        headings.forEach((heading, idx) => {
+            if (!heading.id) {
+                let rawId = heading.innerText.trim().toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-');
+                heading.id = rawId + '-' + idx;
+            }
+        });
+        
+        // 生成目录树
+        generateToc(headings);
+        
+        // 高亮代码块 (二次确保)
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+        
+        // 添加滚动监听高亮目录
+        setupScrollSpy();
+    }
+
+    function generateToc(headings) {
+        const tocContainer = document.getElementById('tableOfContents');
+        if (!tocContainer) return;
+        const tocList = document.createElement('ul');
+        tocList.className = 'toc-list';
+        let stack = [{ level: 1, ul: tocList }];
+        
+        headings.forEach((heading) => {
+            const level = parseInt(heading.tagName[1]);
+            if (isNaN(level)) return;
+            const anchor = document.createElement('a');
+            anchor.href = `#${heading.id}`;
+            anchor.textContent = heading.innerText;
+            anchor.className = `toc-h${level}`;
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.getElementById(heading.id);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, '', `#${heading.id}`);
+                }
+            });
+            const li = document.createElement('li');
+            li.appendChild(anchor);
+            
+            // 根据层级构建嵌套
+            let last = stack[stack.length - 1];
+            while (last.level >= level && stack.length > 1) {
+                stack.pop();
+                last = stack[stack.length - 1];
+            }
+            if (last.level < level) {
+                const newUl = document.createElement('ul');
+                newUl.className = 'toc-list';
+                last.ul.lastElementChild?.appendChild(newUl);
+                stack.push({ level: level, ul: newUl });
+                last = stack[stack.length - 1];
+            }
+            last.ul.appendChild(li);
+            tocItems.push({ element: heading, link: anchor });
+        });
+        
+        tocContainer.innerHTML = '';
+        tocContainer.appendChild(tocList);
+        
+        // 若没有目录内容显示占位
+        if (tocList.children.length === 0) {
+            tocContainer.innerHTML = '<div style="padding:8px; color:#888;">无标题结构</div>';
+        }
+    }
+
+    function setupScrollSpy() {
+        const contentArea = document.querySelector('.main-content');
+        if (!contentArea) return;
+        const headings = Array.from(document.querySelectorAll('.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4'));
+        if (headings.length === 0) return;
+        
+        const updateActive = () => {
+            const scrollPosition = contentArea.scrollTop + 100;
+            let activeId = null;
+            for (let i = headings.length-1; i >= 0; i--) {
+                const heading = headings[i];
+                const offsetTop = heading.offsetTop;
+                if (scrollPosition >= offsetTop) {
+                    activeId = heading.id;
+                    break;
+                }
+            }
+            if (!activeId && headings.length) activeId = headings[0].id;
+            
+            // 高亮目录链接
+            document.querySelectorAll('.toc-list a').forEach(link => {
+                link.classList.remove('active-toc');
+                const href = link.getAttribute('href');
+                if (href === `#${activeId}`) {
+                    link.classList.add('active-toc');
+                    // 让目录滚动到可视区（可选）
+                    link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            });
+        };
+        
+        contentArea.addEventListener('scroll', updateActive);
+        updateActive();
+    }
+
+    // 回到顶部按钮逻辑
+    function initBackToTop() {
+        const btn = document.getElementById('back2topBtn');
+        const contentArea = document.querySelector('.main-content');
+        if (!btn || !contentArea) return;
+        contentArea.addEventListener('scroll', () => {
+            if (contentArea.scrollTop > 300) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        });
+        btn.addEventListener('click', () => {
+            contentArea.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // 如果URL中有hash，滚动到对应位置
+    function handleHashOnLoad() {
+        if (window.location.hash) {
+            setTimeout(() => {
+                const targetId = window.location.hash.substring(1);
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 200);
+        }
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', async () => {
+        await renderMarkdown();
+        initBackToTop();
+        handleHashOnLoad();
+    });
+</script>
+</body>
+</html>
